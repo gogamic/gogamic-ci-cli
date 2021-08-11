@@ -1,0 +1,19 @@
+name: 'Gogamic CI CLI'
+author: GOGAMIC <opensource@gogamic.com>
+
+description: 'An CLI/Docker Image used to deploy apps to dokku'
+inputs:
+  ssh_key:
+    required: true
+    description: A SSH Private key which is to be encoded in base64
+  config_file:
+    required: true
+    description: A yaml file describing about your app and server info 
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - f: ${{ inputs.ssh_key }}
+    - b: true
+    - c: ${{ inputs.config_file }}

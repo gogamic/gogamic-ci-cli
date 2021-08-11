@@ -29,13 +29,13 @@ type ISshClient interface {
 
 var ssh_key_path string
 var config_path string
+var base64ssh_key bool
 
 // deployCmd represents the deploy command
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "A brief description of your command",
 	Long:  ``,
-	Args:  checkArgs,
 	Run:   deploy,
 }
 
@@ -52,6 +52,7 @@ func init() {
 	// is called directly, e.g.:
 	deployCmd.Flags().StringVarP(&config_path, "config", "c", "", "Please enter the path to YAML file")
 	deployCmd.Flags().StringVarP(&ssh_key_path, "ssh_key", "f", "", "Enter the path to SSH Private Key (default is $HOME/.ssh/id_rsa) ")
+	deployCmd.Flags().BoolVarP(&base64ssh_key, "base64_key", "b", false, "Weather the private key file is encoded in BASE64")
 }
 
 func deploy(cmd *cobra.Command, args []string) {
@@ -66,9 +67,9 @@ func deploy(cmd *cobra.Command, args []string) {
 		panic(fmt.Sprintf("invalid backend: %s", data.Config.Backend))
 	}
 	if ssh_key_path == "" {
-		err = functions.RunServerCommands(data.Config.IP, cmds, nil)
+		err = functions.RunServerCommands(data.Config.IP, cmds, nil, base64ssh_key)
 	} else {
-		err = functions.RunServerCommands(data.Config.IP, cmds, &ssh_key_path)
+		err = functions.RunServerCommands(data.Config.IP, cmds, &ssh_key_path, base64ssh_key)
 	}
 
 	if err != nil {
@@ -77,6 +78,7 @@ func deploy(cmd *cobra.Command, args []string) {
 
 }
 
+/*
 func checkArgs(cmd *cobra.Command, args []string) error {
 	err := functions.ValidateYAMLFile(config_path)
 	if err != nil {
@@ -84,3 +86,4 @@ func checkArgs(cmd *cobra.Command, args []string) error {
 	}
 	return nil
 }
+*/

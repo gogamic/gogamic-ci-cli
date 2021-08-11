@@ -31,7 +31,6 @@ COPY --from=builder /app/gogamic-cli /gogamic-cli
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh
 
-COPY ./id_rsa /root/.ssh/id_rsa
 
 # Run the web service on container startup.
 ENTRYPOINT ["/gogamic-cli"]

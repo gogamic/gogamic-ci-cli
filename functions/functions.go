@@ -2,6 +2,7 @@ package functions
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -27,8 +28,8 @@ func CheckIPAddress(ip string) error {
 	}
 }
 
-func RunServerCommands(server_ip string, commands []string, ssh_key_path *string) error {
-	key, err := getKeyFile(ssh_key_path)
+func RunServerCommands(server_ip string, commands []string, ssh_key_path *string, b64 bool) error {
+	key, err := getKeyFile(ssh_key_path, b64)
 
 	if err != nil {
 		panic(err)
@@ -86,7 +87,7 @@ func RunServerCommands(server_ip string, commands []string, ssh_key_path *string
 	return nil
 }
 
-func getKeyFile(ssh_key_path *string) (key ssh.Signer, err error) {
+func getKeyFile(ssh_key_path *string, b64 bool) (key ssh.Signer, err error) {
 	var file string
 	if ssh_key_path != nil {
 		cwd, _ := os.Getwd()
@@ -98,8 +99,18 @@ func getKeyFile(ssh_key_path *string) (key ssh.Signer, err error) {
 
 	buf, err := ioutil.ReadFile(file)
 	if err != nil {
-		return
+		HandleErr(err, "ssh key doesn't exists")
 	}
+	if b64 {
+		buf, err = Base64Decode(buf)
+
+		if err != nil {
+			HandleErr(err, "unable to parse ssh key in base 64 decoding")
+		}
+		/* fmt.Println("successfulle decoded")
+		fmt.Println(string(buf)) */
+	}
+
 	key, err = ssh.ParsePrivateKey(buf)
 	if err != nil {
 		return
@@ -177,4 +188,14 @@ func ParseYAMLFile(file_path string) (*utils.Config, error) {
 		return nil, fmt.Errorf(err.Error())
 	}
 	return &config, nil
+}
+
+func Base64Decode(message []byte) (b []byte, err error) {
+	var l int
+	b = make([]byte, base64.StdEncoding.DecodedLen(len(message)))
+	l, err = base64.StdEncoding.Decode(b, message)
+	if err != nil {
+		return
+	}
+	return b[:l], nil
 }
