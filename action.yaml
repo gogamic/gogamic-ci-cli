@@ -16,5 +16,4 @@ runs:
   args:
     - deploy      
     - -f ${{ inputs.ssh_key }}
-    - -b true
     - -c ${{ inputs.config_file }}
