@@ -52,7 +52,7 @@ func init() {
 	// is called directly, e.g.:
 	deployCmd.Flags().StringVarP(&config_path, "config", "c", "", "Please enter the path to YAML file")
 	deployCmd.Flags().StringVarP(&ssh_key_path, "ssh_key", "f", "", "Enter the path to SSH Private Key (default is $HOME/.ssh/id_rsa) ")
-	deployCmd.Flags().BoolVarP(&base64ssh_key, "base64_key", "b", false, "Weather the private key file is encoded in BASE64")
+	deployCmd.Flags().BoolVarP(&base64ssh_key, "base64_key", "b", true, "Weather the private key file is encoded in BASE64")
 }
 
 func deploy(cmd *cobra.Command, args []string) {
