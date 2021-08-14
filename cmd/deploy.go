@@ -52,6 +52,7 @@ func init() {
 	// is called directly, e.g.:
 	deployCmd.Flags().StringVarP(&app_name, "name", "n", "", "The application name")
 	deployCmd.Flags().StringVarP(&image_url, "image", "r", "", "The url to docker image")
+
 }
 
 func deploy(cmd *cobra.Command, args []string) {

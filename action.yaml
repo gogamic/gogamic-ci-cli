@@ -14,6 +14,6 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - f: ${{ inputs.ssh_key }}
-    - b: true
-    - c: ${{ inputs.config_file }}
+    - deploy      
+    - -f ${{ inputs.ssh_key }}
+    - -c ${{ inputs.config_file }}
