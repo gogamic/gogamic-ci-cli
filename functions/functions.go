@@ -13,9 +13,7 @@ import (
 	"os/user"
 	"path"
 
-	"github.com/gogamic/gogamic-ci-cli/utils"
 	"golang.org/x/crypto/ssh"
-	"gopkg.in/yaml.v2"
 )
 
 func CheckIPAddress(ip string) error {
@@ -28,8 +26,8 @@ func CheckIPAddress(ip string) error {
 	}
 }
 
-func RunServerCommands(server_ip string, commands []string, ssh_key_path *string, b64 bool) error {
-	key, err := getKeyFile(ssh_key_path, b64)
+func RunServerCommands(server_ip string, commands []string, ssh_key_path *string, b64 bool, b64_key string) {
+	key, err := getKeyFile(ssh_key_path, b64, b64_key)
 
 	if err != nil {
 		panic(err)
@@ -45,12 +43,12 @@ func RunServerCommands(server_ip string, commands []string, ssh_key_path *string
 
 	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:22", server_ip), config)
 	if err != nil {
-		return fmt.Errorf("Failed to connect: " + err.Error())
+		HandleErr(err, "Failed to connect")
 	}
 
 	session, err := client.NewSession()
 	if err != nil {
-		return fmt.Errorf("Failed to create session: " + err.Error())
+		HandleErr(err, "Failed to create session")
 	}
 
 	in, err := session.StdinPipe()
@@ -83,31 +81,35 @@ func RunServerCommands(server_ip string, commands []string, ssh_key_path *string
 	defer session.Close()
 	defer readoutput(out, err_log)
 	defer in.Close()
-
-	return nil
 }
 
-func getKeyFile(ssh_key_path *string, b64 bool) (key ssh.Signer, err error) {
-	var file string
-	if ssh_key_path != nil {
-		cwd, _ := os.Getwd()
-		file = path.Join(cwd, *ssh_key_path)
+func getKeyFile(ssh_key_path *string, b64 bool, b64_key string) (key ssh.Signer, err error) {
+	var buf []byte
+	if b64_key != "null" {
+		buf = []byte(b64_key)
+		b64 = true
 	} else {
-		usr, _ := user.Current()
-		file = path.Join(usr.HomeDir, "/.ssh/id_rsa")
+		var file string
+		if ssh_key_path != nil {
+			cwd, _ := os.Getwd()
+			file = path.Join(cwd, *ssh_key_path)
+		} else {
+			usr, _ := user.Current()
+			file = path.Join(usr.HomeDir, "/.ssh/id_rsa")
+		}
+
+		buf, err = ioutil.ReadFile(file)
+		if err != nil {
+			HandleErr(err, "ssh key doesn't exists")
+		}
 	}
 
-	buf, err := ioutil.ReadFile(file)
-	if err != nil {
-		HandleErr(err, "ssh key doesn't exists")
-	}
 	if b64 {
 		buf, err = Base64Decode(buf)
-
 		if err != nil {
 			HandleErr(err, "unable to parse ssh key in base 64 decoding")
 		}
-		/* fmt.Println("successfulle decoded")
+		/* fmt.Println("successfully decoded")
 		fmt.Println(string(buf)) */
 	}
 
@@ -118,13 +120,12 @@ func getKeyFile(ssh_key_path *string, b64 bool) (key ssh.Signer, err error) {
 	return
 }
 
-func GetCommands(backend *utils.Config) ([]string, error) {
-	var backend_name = backend.Config.Backend
+func GetCommands(backend_name string, backend_image string) ([]string, error) {
 	if backend_name == "dokku" {
 		commands := []string{
-			fmt.Sprintf("sudo docker pull %s", backend.Config.Image),
-			fmt.Sprintf("sudo docker tag %s dokku/%s", backend.Config.Image, backend.Name),
-			fmt.Sprintf("sudo dokku git:from-image %s dokku/%s:latest", backend.Name, backend.Name),
+			fmt.Sprintf("sudo docker pull %s", backend_image),
+			fmt.Sprintf("sudo docker tag %s dokku/%s", backend_image, backend_name),
+			fmt.Sprintf("sudo dokku git:from-image %s dokku/%s:latest", backend_name, backend_name),
 		}
 		return commands, nil
 	} else if backend_name == "docker" {
@@ -154,10 +155,10 @@ func readoutput(out io.Reader, err_log io.Reader) {
 }
 
 func HandleErr(err error, message string) {
-	log.Panicf("%s: %s", message, err.Error())
+	log.Fatalf("%s: %s", message, err.Error())
 }
 
-func ValidateYAMLFile(file_path string) error {
+/* func ValidateYAMLFile(file_path string) error {
 	data, err := ParseYAMLFile(file_path)
 	if err != nil {
 		return fmt.Errorf("unable to parse file: %s", err.Error())
@@ -188,7 +189,7 @@ func ParseYAMLFile(file_path string) (*utils.Config, error) {
 		return nil, fmt.Errorf(err.Error())
 	}
 	return &config, nil
-}
+} */
 
 func Base64Decode(message []byte) (b []byte, err error) {
 	var l int

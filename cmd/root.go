@@ -24,7 +24,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	Backend_name   string
+	cfgFile        string
+	Server_ip      string
+	Ssh_key_path   string
+	Ssh_key_string string
+	Base64ssh_key  bool
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -45,6 +52,11 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	rootCmd.PersistentFlags().StringVarP(&Backend_name, "backend_type", "t", "", "The type of backend eg.dokku")
+	rootCmd.PersistentFlags().StringVarP(&Server_ip, "server_ip", "i", "", "The Server IP addr where the app should be deployed")
+	rootCmd.PersistentFlags().StringVarP(&Ssh_key_path, "ssh_key_file", "f", "", "Enter the path to SSH Private Key (default is $HOME/.ssh/id_rsa)")
+	rootCmd.PersistentFlags().StringVarP(&Ssh_key_string, "ssh_key_string", "s", "null", "The Base64 encoded SSH Private Key string")
+	rootCmd.PersistentFlags().BoolVarP(&Base64ssh_key, "base64_key", "b", false, "Weather the private key file is encoded in BASE64")
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.

@@ -27,17 +27,17 @@ type ISshClient interface {
 	GetConnection(host string, username string, password string) ssh.Client
 }
 
-var ssh_key_path string
-var config_path string
-var base64ssh_key bool
-
-// deployCmd represents the deploy command
-var deployCmd = &cobra.Command{
-	Use:   "deploy",
-	Short: "A brief description of your command",
-	Long:  ``,
-	Run:   deploy,
-}
+var (
+	app_name  string
+	image_url string
+	deployCmd = &cobra.Command{
+		Use:   "deploy",
+		Short: "A brief description of your command",
+		Long:  ``,
+		Run:   deploy,
+		Args:  checkArgs,
+	}
+)
 
 func init() {
 	rootCmd.AddCommand(deployCmd)
@@ -50,40 +50,34 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	deployCmd.Flags().StringVarP(&config_path, "config", "c", "", "Please enter the path to YAML file")
-	deployCmd.Flags().StringVarP(&ssh_key_path, "ssh_key", "f", "", "Enter the path to SSH Private Key (default is $HOME/.ssh/id_rsa) ")
-	deployCmd.Flags().BoolVarP(&base64ssh_key, "base64_key", "b", false, "Weather the private key file is encoded in BASE64")
+	deployCmd.Flags().StringVarP(&app_name, "name", "n", "", "The application name")
+	deployCmd.Flags().StringVarP(&image_url, "image", "r", "", "The url to docker image")
 }
 
 func deploy(cmd *cobra.Command, args []string) {
-	data, err := functions.ParseYAMLFile(config_path)
-	if err != nil {
-		panic(fmt.Sprintf("unable to parse file: %s", err.Error()))
-	}
 
-	cmds, err := functions.GetCommands(data)
+	cmds, err := functions.GetCommands(Backend_name, image_url)
 
 	if err != nil {
-		panic(fmt.Sprintf("invalid backend: %s", data.Config.Backend))
-	}
-	if ssh_key_path == "" {
-		err = functions.RunServerCommands(data.Config.IP, cmds, nil, base64ssh_key)
-	} else {
-		err = functions.RunServerCommands(data.Config.IP, cmds, &ssh_key_path, base64ssh_key)
+		functions.HandleErr(err, fmt.Sprintf("invalid backend: %s", Backend_name))
 	}
 
-	if err != nil {
-		panic(err.Error())
+	if Ssh_key_path != "" {
+		functions.RunServerCommands(Server_ip, cmds, &Ssh_key_path, Base64ssh_key, Ssh_key_string)
+		return
 	}
+	functions.RunServerCommands(Server_ip, cmds, nil, Base64ssh_key, Ssh_key_string)
 
 }
 
-/*
 func checkArgs(cmd *cobra.Command, args []string) error {
-	err := functions.ValidateYAMLFile(config_path)
+	err := functions.CheckIPAddress(Server_ip)
 	if err != nil {
-		functions.HandleErr(err, "config file err")
+		functions.HandleErr(err, "You have entered an Invalid ip")
+	}
+
+	if Ssh_key_string == "none" && Ssh_key_path == "" {
+		functions.HandleErr(nil, "Please enter ssh string or ssh path")
 	}
 	return nil
 }
-*/
