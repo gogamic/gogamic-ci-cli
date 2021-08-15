@@ -123,6 +123,7 @@ func getKeyFile(ssh_key_path *string, b64 bool, b64_key string) (key ssh.Signer,
 func GetCommands(backend_name string, backend_image string) ([]string, error) {
 	if backend_name == "dokku" {
 		commands := []string{
+			"sudo su -",
 			fmt.Sprintf("sudo docker pull %s", backend_image),
 			fmt.Sprintf("sudo docker tag %s dokku/%s", backend_image, backend_name),
 			fmt.Sprintf("sudo dokku git:from-image %s dokku/%s:latest", backend_name, backend_name),
