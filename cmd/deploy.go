@@ -57,7 +57,7 @@ func init() {
 
 func deploy(cmd *cobra.Command, args []string) {
 
-	cmds, err := functions.GetCommands(Backend_name, image_url)
+	cmds, err := functions.GetCommands(Backend_name, image_url, app_name)
 
 	if err != nil {
 		functions.HandleErr(err, fmt.Sprintf("invalid backend: %s", Backend_name))

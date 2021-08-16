@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/user"
 	"path"
+	"strings"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -72,7 +73,7 @@ func RunServerCommands(server_ip string, commands []string, ssh_key_path *string
 	}
 
 	for _, cmd := range commands {
-		// log.Printf("running command => %s", cmd)
+		log.Printf("running command => %s", cmd)
 		fmt.Fprintf(in, "%s;", cmd)
 	}
 	// fmt.Printf("%T", out)
@@ -120,20 +121,24 @@ func getKeyFile(ssh_key_path *string, b64 bool, b64_key string) (key ssh.Signer,
 	return
 }
 
-func GetCommands(backend_name string, backend_image string) ([]string, error) {
+func GetCommands(backend_name string, backend_image string, app_name string) ([]string, error) {
+	var commands []string
+	registry := Getdockeregitryname(backend_image)
+
+	if registry == "gcp" {
+		commands = append(commands, fmt.Sprintf("cat /var/gogamic/cred/gcp/gcp_cred.json | sudo docker login -u _json_key --password-stdin https://%s", backend_image))
+	}
 	if backend_name == "dokku" {
-		commands := []string{
-			"sudo su -",
-			fmt.Sprintf("sudo docker pull %s", backend_image),
-			fmt.Sprintf("sudo docker tag %s dokku/%s", backend_image, backend_name),
-			fmt.Sprintf("sudo dokku git:from-image %s dokku/%s:latest", backend_name, backend_name),
-		}
+		commands = append(commands, fmt.Sprintf("sudo docker pull %s", backend_image))
+		commands = append(commands, fmt.Sprintf("sudo docker tag %s dokku/%s", backend_image, app_name))
+		commands = append(commands, fmt.Sprintf("sudo dokku git:from-image %s dokku/%s:latest", app_name, app_name))
 		return commands, nil
 	} else if backend_name == "docker" {
-		commands := []string{"", "", "", ""}
+		commands = append(commands, "")
 		return commands, nil
 	} else if backend_name == "test" {
-		commands := []string{"whoami", "pwd"}
+		commands = append(commands, "whoami")
+		commands = append(commands, "pwd")
 		return commands, nil
 	} else {
 		return nil, fmt.Errorf("%s is not a valid backend", backend_name)
@@ -157,6 +162,15 @@ func readoutput(out io.Reader, err_log io.Reader) {
 
 func HandleErr(err error, message string) {
 	log.Fatalf("%s: %s", message, err.Error())
+}
+
+func Getdockeregitryname(registry_url string) (registry string) {
+	if strings.HasPrefix(registry_url, "gcr.io") {
+		return "gcp"
+	} else {
+		HandleErr(errors.New(""), "Please enter a vaild registry")
+		return
+	}
 }
 
 /* func ValidateYAMLFile(file_path string) error {
