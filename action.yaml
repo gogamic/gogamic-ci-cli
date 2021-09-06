@@ -25,7 +25,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'gogamic9/gogamic-ci-cli'
+  image: 'docker://gogamic9/gogamic-ci-cli:latest'
   args:
     - deploy
     - -i=${{ inputs.server_ip }}
