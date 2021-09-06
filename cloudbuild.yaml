@@ -1,9 +1,9 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ["build", "-t", "gcr.io/gogamicc/gogamic-ci-cli", "."]
+    args: ["build", "-t", "gcr.io/$PROJECT_ID/gogamic-ci-cli", "."]
   
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/gogamicc/gogamic-ci-cli']
+    args: ['push', 'gcr.io/$PROJECT_ID/gogamic-ci-cli']
 
 images:
-  - gcr.io/gogamicc/gogamic-ci-cli
+  - gcr.io/$PROJECT_ID/gogamic-ci-cli

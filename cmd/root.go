@@ -52,7 +52,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVarP(&Backend_name, "backend_type", "t", "", "The type of backend eg.dokku")
+	rootCmd.PersistentFlags().StringVarP(&Backend_name, "backend_type", "t", "dokku", "The type of backend default:dokku")
 	rootCmd.PersistentFlags().StringVarP(&Server_ip, "server_ip", "i", "", "The Server IP addr where the app should be deployed")
 	rootCmd.PersistentFlags().StringVarP(&Ssh_key_path, "ssh_key_file", "f", "", "Enter the path to SSH Private Key (default is $HOME/.ssh/id_rsa)")
 	rootCmd.PersistentFlags().StringVarP(&Ssh_key_string, "ssh_key_string", "s", "null", "The Base64 encoded SSH Private Key string")

@@ -132,6 +132,7 @@ func GetCommands(backend_name string, backend_image string, app_name string) ([]
 		commands = append(commands, fmt.Sprintf("sudo docker pull %s", backend_image))
 		commands = append(commands, fmt.Sprintf("sudo docker tag %s dokku/%s", backend_image, app_name))
 		commands = append(commands, fmt.Sprintf("sudo dokku git:from-image %s dokku/%s:latest", app_name, app_name))
+		commands = append(commands, fmt.Sprintf("sudo dokku ps:rebuild %s", app_name))
 		return commands, nil
 	} else if backend_name == "docker" {
 		commands = append(commands, "")
