@@ -15,6 +15,11 @@ inputs:
   name:
     required: true
     description: The Name of the application in the Instance
+  base64:
+    required: false
+    description: Wether the ssh key is provided in base64 encode
+    default: true
+
   
   
 
@@ -23,7 +28,7 @@ runs:
   image: 'Dockerfile'
   args:
     - deploy      
-    - "-b true"
+    - "-b ${{ inputs.base64 }}"
     - "-s ${{ inputs.ssh_key }}"
     - "-i ${{ inputs.server_ip }}"
     - "-n ${{ inputs.name }}"
