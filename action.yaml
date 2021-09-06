@@ -24,5 +24,7 @@ runs:
   args:
     - deploy      
     - "-b true"
-    - -s ${{ inputs.ssh_key }}
-    - -i ${{ inputs.server_ip }}
+    - "-s ${{ inputs.ssh_key }}"
+    - "-i ${{ inputs.server_ip }}"
+    - "-n ${{ inputs.name }}"
+    - "-r ${{ inputs.image_url }}"
