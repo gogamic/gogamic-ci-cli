@@ -19,10 +19,10 @@ import (
 
 func CheckIPAddress(ip string) error {
 	if net.ParseIP(ip) == nil {
-		// fmt.Printf("IP Address: %s - Invalid\n", ip)
+		fmt.Printf("IP Address: %s - Invalid\n", ip)
 		return errors.New("invalid ip address")
 	} else {
-		// fmt.Printf("IP Address: %s - Valid\n", ip)
+		fmt.Printf("IP Address: %s - Valid\n", ip)
 		return nil
 	}
 }
