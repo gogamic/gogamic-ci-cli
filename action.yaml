@@ -23,6 +23,6 @@ runs:
   image: 'Dockerfile'
   args:
     - deploy      
-    - -b true
+    - "-b true"
     - -s ${{ inputs.ssh_key }}
     - -i ${{ inputs.server_ip }}
