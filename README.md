@@ -1,0 +1,1 @@
+[![Publish to Docker Hub](https://github.com/gogamic/gogamic-ci-cli/actions/workflows/release.yml/badge.svg)](https://github.com/gogamic/gogamic-ci-cli/actions/workflows/release.yml)
