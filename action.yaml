@@ -28,8 +28,8 @@ runs:
   image: 'Dockerfile'
   args:
     - deploy
-    - "-i ${{ inputs.server_ip }}"
-    - "-s ${{ inputs.ssh_key }}"
-    - "-n ${{ inputs.name }}"
-    - "-r ${{ inputs.image_url }}"
-    - "-b ${{ inputs.base64 }}"
+    - -i ${{ inputs.server_ip }}
+    - -s ${{ inputs.ssh_key }}
+    - -n ${{ inputs.name }}
+    - -r ${{ inputs.image_url }}
+    - -b=${{ inputs.base64 }}
